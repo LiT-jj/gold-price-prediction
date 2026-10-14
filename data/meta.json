@@ -1,0 +1,24 @@
+{
+  "n_samples": 4752,
+  "n_features": 57,
+  "start": "2008-06-11",
+  "end": "2026-10-13",
+  "xau_latest": 4141.97,
+  "fred_ok": [
+    "breakeven",
+    "cpia",
+    "curve",
+    "dxy",
+    "fedfunds",
+    "gvz",
+    "indpro",
+    "nfp",
+    "realyield",
+    "unrate",
+    "useu",
+    "vix",
+    "wti",
+    "y10"
+  ],
+  "fred_failed": {}
+}

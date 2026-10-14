@@ -1,0 +1,25 @@
+{
+  "decomposition": {
+    "fwd_1d": {
+      "buy_hold_bp": 6.418807228814878,
+      "strategy_bp": 8.91696980712393,
+      "beta": 0.36761111152020953,
+      "corr_with_market": 0.46247480159655446,
+      "alpha_bp_after_neutral": 5.681641270326294,
+      "n_trades": 1247
+    },
+    "fwd_5d": {
+      "buy_hold_bp": 32.13128559983351,
+      "strategy_bp": 43.20600427166938,
+      "beta": 0.26367712594261505,
+      "corr_with_market": 0.32125381363622996,
+      "alpha_bp_after_neutral": 31.500870676802695,
+      "n_trades": 1432
+    }
+  },
+  "conclusion": {
+    "beta_exposure_is_main_driver": false,
+    "day1_alpha": 5.681641270326294,
+    "week1_alpha": 31.500870676802695
+  }
+}

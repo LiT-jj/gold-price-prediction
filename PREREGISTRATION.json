@@ -1,0 +1,81 @@
+{
+  "title": "黄金多因子预测模型 · 预注册判据",
+  "created": "2026-10-14",
+  "purpose": "本文件在实验开始前写定，锁定判定标准与停止规则。实验后不得修改标准；如需修改，必须新增版本并说明理由。",
+  "background": "承接上一项目（彩票预测）的教训：先定判据、再跑实验，杜绝事后挑选显著性结果。",
+
+  "hypothesis": "H0: 黄金未来 1日/3日/1周 的涨跌方向与57维宏观资金因子无稳定预测关系。H1: 存在样本外可重复的方向预测力。",
+
+  "data": {
+    "sample": "2008-06-11 ~ 2026-10-13，共 4752 个交易日",
+    "target": "黄金收盘价对数百分比收益，分别预测 +1日 / +3日 / +1周",
+    "primary_target": "fwd_1d",
+    "split": {
+      "train": "2008-06-11 ~ 2018-12-31（前约68%）",
+      "test": "2019-01-01 ~ 2026-10-13（后约32%）",
+      "note": "按时间切分，绝不随机打乱——金融时序打乱即制造泄漏"
+    }
+  },
+
+  "primary_metric": {
+    "name": "方向准确率（sample-out-of-time）",
+    "formula": "accuracy = mean(sign(pred) == sign(actual))，对fwd_1d",
+    "baseline_random": 0.50,
+    "threshold": 0.53
+  },
+
+  "secondary_metrics": [
+    {"name": "AUC", "baseline": 0.50, "threshold": 0.53},
+    {"name": "样本外logloss", "threshold": "必须优于常数预测器 p=mean(up)"}
+  ],
+
+  "decision_rule": {
+    "significance_test": "单侧配对符号检验（binomial test）检验准确率是否显著高于 50%",
+    "alpha": 0.05,
+    "multiple_comparison_correction": "Bonferroni，因检验 4 个预测周期（1/3/5/10日），alpha 校正为 0.05/4 = 0.0125",
+    "pass_condition": "主目标 fwd_1d 在样本外准确率 > 53% 且校正后 p < 0.0125，且同时通过对照组检验（见下）",
+    "fail_condition": "任一条件不满足即判定 H1 不成立"
+  },
+
+  "falsification_controls": [
+    {
+      "name": "打乱标签对照",
+      "procedure": "在训练集内随机打乱 y，重复 20 次，训练同结构模型，记录样本外准确率分布",
+      "pass_criterion": "真实标签下的样本外准确率必须显著高于打乱标签分布的95分位数"
+    },
+    {
+      "name": "随机数对照",
+      "procedure": "把特征全部替换为同分布随机数，训练同结构模型",
+      "pass_criterion": "真实特征必须显著优于随机特征"
+    },
+    {
+      "name": "纯技术面基线",
+      "procedure": "仅用黄金自身动量特征（au_*）建模，作为下界",
+      "note": "若全因子模型不优于此基线，说明新增宏观因子只是噪声"
+    }
+  ],
+
+  "models": [
+    {"name": "LogisticRegression", "params": "C grid[0.01,0.1,1,10], L2, 仅用训练集调参"},
+    {"name": "RandomForest", "params": "n=300, depth=3, min_leaf=30（刻意低容量，防过拟合）"},
+    {"name": "GradientBoosting", "params": "n=200, depth=2, lr=0.05"}
+  ],
+
+  "model_selection": "在训练集内部做时序交叉验证（3折walk-forward）选超参，测试集全程封存，只在最后跑一次。",
+
+  "stopping_rules": [
+    "若样本外准确率 ≤ 52%，停止调参，直接如实报告无效",
+    "绝对禁止为了让结果变好而修改阈值、换指标、或只报告表现好的周期",
+    "若打乱标签对照组表现与真实标签相当，判定模型学到的只是噪声"
+  ],
+
+  "known_limitations": [
+    "非农使用修订后序列，存在初值可得性问题——静态分析可接受，实盘需用初值",
+    "2013-2014 与 2020 年样本量较小，异常行情可能主导结果",
+    "战争/地缘事件无法直接量化，用 VIX 与原油波动作为代理，属于间接代理",
+    "交易成本、滑点未纳入；若准确率仅略高于 50%，扣除成本后可能无净收益",
+    "金融时序存在非平稳性，2019-2026 的结论不保证在未来重现"
+  ],
+
+  "interpretation_rule": "若通过：可以说'在2019-2026样本外该模型方向准确率为 X%，统计显著'。若不通过：必须明确说明未发现稳定预测力，并报告效应量，不得包装为'略有提升'。"
+}
